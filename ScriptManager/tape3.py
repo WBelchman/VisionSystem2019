@@ -158,7 +158,7 @@ g = GripPipeline()
 #Minimum area of a bounding box
 size_threshold = 250
 
-def main(stop_message):
+def main(stop_message, sem):
     
     def connection(stop_message):
     
@@ -169,6 +169,7 @@ def main(stop_message):
         if x != 1:
             print("[*]Thread 1 exiting")
             cam.close()
+            sem.release()
             sys.exit()
     
     cam = PiCamera()

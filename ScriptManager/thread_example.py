@@ -1,7 +1,7 @@
 import time
 import sys
 
-def main(stop_message):
+def main(stop_message, sem):
 
     while True:
 
@@ -12,6 +12,7 @@ def main(stop_message):
         
         if x != 3:
             print("[*]Thread 3 exiting")
+            sem.release()
             sys.exit()
         
         time.sleep(1)

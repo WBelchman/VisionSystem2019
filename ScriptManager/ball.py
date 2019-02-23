@@ -181,7 +181,7 @@ table = Table(1)
 grip = GripPipeline()
 
 
-def main (stop_message):
+def main (stop_message, sem):
     
     def connection(stop_message):
     
@@ -192,6 +192,7 @@ def main (stop_message):
         if x != 2:
             print("[*]Thread 2 exiting")
             cam.close()
+            sem.release()
             sys.exit()
     
     cam = PiCamera()
@@ -205,7 +206,7 @@ def main (stop_message):
         try:
             grip.process(frame)
         
-            max = 0;
+            max = 0
             for i in grip.find_lines_output:
                 if i.x1 > max:
                     max = i.x1
