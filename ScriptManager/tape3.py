@@ -160,18 +160,21 @@ size_threshold = 250
 
 def main(stop_message, sem):
     
+    #Checks scriptmanager state and exits if script is no longer needed
     def connection(stop_message):
     
+        #Script choice
         x = stop_message[0]
         
         print("[*]Thread 1 queue:", x)
         
         if x != 1:
             print("[*]Thread 1 exiting")
-            cam.close()
-            sem.release()
+            cam.close() #Deinitializes PiCamera object
+            sem.release() #Indicates PiCamera resource is available
             sys.exit()
     
+    #Initializes PiCamera stream
     cam = PiCamera()
     cam.resolution = (640, 480)
     cam.framerate = 32
@@ -185,12 +188,14 @@ def main(stop_message, sem):
         frame = frame.array
         #Runs the frame through the grip pipeline
         g.process(frame)
-        threshed_frame = g.hsv_threshold_output
+        threshed_frame = g.hsv_threshold_output #Returns product of Pipeline
         
+        #Finds contours in image
         ret, thresh = cv2.threshold(threshed_frame, 127, 255, cv2.THRESH_BINARY)
         im2, contours, heirarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
         try:
+            #Returns a list of tuples containing the box info
             box_list = find_boxes(contours)
 
         except Exception as e:
@@ -203,6 +208,7 @@ def main(stop_message, sem):
             box = cv2.boxPoints(rect[:3])
             box = np.int0(box)
             
+            #Finds the area and angle of each rectangle
             angle = math.floor(rect[2])
             area = rect[3]
             
@@ -227,7 +233,8 @@ def main(stop_message, sem):
             print("Midpoint:", mid)
             
         else:
-        
+            
+            #If no midpoint is found, return the default value to the table
             table.updateNumber("B")
             table.updateNumber("B", key=1)
         
@@ -238,6 +245,7 @@ def main(stop_message, sem):
 
         rawCap.truncate(0)
         
+        #Checks scriptmanager value
         connection(stop_message)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):

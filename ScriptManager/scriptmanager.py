@@ -1,4 +1,5 @@
 import threading
+import time
 
 import ball
 import tape3
@@ -22,22 +23,24 @@ def start_ball():
 def start_example():
     thread_example.main(stop_message, sem)
 
+#Listens to networktable, runs when a value is changed
 def valueChanged(table, key, value, isNew):
     print("Value changed:", table, key, value)
     # 0 stops everything
     # 1 stops everything but tape detector
     # 2 stops everything but ball detector
-    stop_message[0] = 0
     value = int(value)
     stop_message[0] = value
     
-    if value != 0:
+    if value != 0: 
+
+        t = threading.Thread(target=target_list[value])
+        sem.acquire() #Decrements semaphore value, waits for other scripts to stop
 
         print("[*]Starting thread: {}".format(value))
-        t = threading.Thread(target=target_list[value])
-        sem.acquire()
-        t.start()
+        t.start() #Starts thread
 
+#Watches the connection to the networktables server
 def connectionListener(info, connected):
     print(info, "Connected:", connected)
 
